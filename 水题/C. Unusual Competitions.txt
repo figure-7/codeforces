@@ -1,0 +1,129 @@
+C. Unusual Competitions
+time limit per test1 second
+memory limit per test512 megabytes
+inputstandard input
+outputstandard output
+A bracketed sequence is called correct (regular) if by inserting "+" and "1" you can get a well-formed mathematical expression from it. For example, sequences "(())()", "()" and "(()(()))" are correct, while ")(", "(()" and "(()))(" are not.
+
+The teacher gave Dmitry's class a very strange task — she asked every student to come up with a sequence of arbitrary length, consisting only of opening and closing brackets. After that all the students took turns naming the sequences they had invented. When Dima's turn came, he suddenly realized that all his classmates got the correct bracketed sequence, and whether he got the correct bracketed sequence, he did not know.
+
+Dima suspects now that he simply missed the word "correct" in the task statement, so now he wants to save the situation by modifying his sequence slightly. More precisely, he can the arbitrary number of times (possibly zero) perform the reorder operation.
+
+The reorder operation consists of choosing an arbitrary consecutive subsegment (substring) of the sequence and then reordering all the characters in it in an arbitrary way. Such operation takes l nanoseconds, where l is the length of the subsegment being reordered. It's easy to see that reorder operation doesn't change the number of opening and closing brackets. For example for "))((" he can choose the substring ")(" and do reorder ")()(" (this operation will take 2 nanoseconds).
+
+Since Dima will soon have to answer, he wants to make his sequence correct as fast as possible. Help him to do this, or determine that it's impossible.
+
+Input
+The first line contains a single integer n (1≤n≤106) — the length of Dima's sequence.
+
+The second line contains string of length n, consisting of characters "(" and ")" only.
+
+Output
+Print a single integer — the minimum number of nanoseconds to make the sequence correct or "-1" if it is impossible to do so.
+
+Examples
+inputCopy
+8
+))((())(
+outputCopy
+6
+inputCopy
+3
+(()
+outputCopy
+-1
+Note
+In the first example we can firstly reorder the segment from first to the fourth character, replacing it with "()()", the whole sequence will be "()()())(". And then reorder the segment from the seventh to eighth character, replacing it with "()". In the end the sequence will be "()()()()", while the total time spent is 4+2=6 nanoseconds.
+
+思路：栈+SlidingWindows
+如果有奇数个字符或者左右括号数不等输出-1结束即可
+遍历一次字符串，当出现的')'大于'('时，规定当前下标为左指针，右指针为当前遍历下标
+当之前需要过'('并且当前括号匹配了，状态转换有一个布尔变量，结果值就加上右指针减去左指针加一
+最后返回结果值即可
+
+上代码：
+#include<iostream>
+#pragma warning(disable:4996)
+#include<cstring>
+#include<string>
+#include<cstdio>
+#include<algorithm>
+#include <vector>
+#include <queue>
+#include <map>
+#include <math.h>
+#include<fstream>
+#include<cmath>
+#include <stack>
+typedef long long ll;
+typedef unsigned long long ull;
+typedef long double ld;
+using namespace std;
+#define Set(a) memset(a,0,sizeof(a))
+#define F(i,a,b) for(register int i=a,i##end=b;i<=i##end;++i)
+#define UF(i,a,b) for(register int i=a,i##end=b;i>=i##end;--i)
+#define openf(a) freopen(#a".in","r",stdin);freopen(#a".out","w",stdout)
+#define re register
+#define ri re int
+#define il inline
+#define INF 0x3f3f3f3f
+#define MOD 100000000
+#define debug() printf("Tairitsu Go PM!\n")
+const int mod = 1e9 + 7;
+template<typename T> inline T rd(T& x)
+{
+	T f = 1; x = 0; char c = getchar();
+	for (; !isdigit(c); c = getchar()) if (c == '-') f = -1;
+	for (; isdigit(c); c = getchar()) x = (x << 3) + (x << 1) + (T)(c - '0');
+	x *= f;
+	return x;
+}
+ll rd() { ll x; rd(x); return x; }
+inline int max(int a, int b) { return a > b ? a : b; }
+inline int min(int a, int b) { return a < b ? a : b; }
+const int inf = 1 << 30;
+int main() {
+	stack<char> s;
+	int n = rd();
+	string str;
+	getline(cin, str);
+	int sum = 0, begin = -1, res = 0;
+	if (n % 2 != 0) {
+		cout << -1;
+		return 0;
+	}
+	for (int i = 0; i < str.size(); i++)
+		if (str[i] == ')')
+			sum++;
+	if (sum != n / 2) {
+		cout << -1;
+		return 0;
+	}
+	sum = 0;
+	bool flag = true;
+	for (int i = 0; i < str.size(); i++) {
+		if (str[i] == ')') {
+			if (sum <= 0) {
+				if (begin == -1)
+					begin = i;
+				s.push(')');
+			}
+			sum--;
+		}
+		else {
+			if (sum < 0 && !s.empty())
+				s.pop();
+			sum++;
+		}
+		if (sum == 0 && !flag) {
+			res += i - begin + 1;
+			begin = -1;
+			flag = true;
+		}
+		if (sum > 0)
+			flag = true;
+		else
+			flag = false;
+	}
+	cout << res;
+}
